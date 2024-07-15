@@ -1,11 +1,29 @@
-const http = require('http')
+require('dotenv').config();
+const express = require('express');
+const app = express();
 
-const app = http.createServer((request, response) => {
-  response.writeHead(200, { 'Content-Type': 'text/plain' })
-  response.end('Hello World')
-})
+const cors = require('cors');
+const morgan = require('morgan');
 
-const PORT = process.env.PORT || 3001
+// Definir formato de token personalizado para Morgan
+morgan.token('description', function(req) {
+  if (req.method === 'POST') {
+    return JSON.stringify(req.body); // Suponiendo que las solicitudes POST envían datos en formato JSON
+  } else {
+    return '-';
+  }
+});
+
+app.use(cors());
+app.use(morgan(':method :url :status - :description - Response Time: :response-time ms'));
+app.use(express.json());
+app.use(express.static('dist'));
+
+app.get('/', (request, response) => {
+  response.send('<h1>Hello World!</h1>');
+});
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  console.log(`Server running on port ${PORT}`);
+});
